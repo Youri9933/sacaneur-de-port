@@ -2,9 +2,9 @@
 import subprocess
 
 ip = input("Adresse IP à scanner : ")
-nmap_path = r"C:\Users\amson\Documents\nmap\nmap.exe"
+
 # Scan rapide (1000 ports principaux)
-result = subprocess.run([nmap_path, ip], capture_output=True, text=True)
+result = subprocess.run(["nmap", ip], capture_output=True, text=True)
 
 def extraire_ports_ouverts(nmap_output):
     ports = []
