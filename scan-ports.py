@@ -3,7 +3,7 @@ import subprocess
 
 ip = input("Adresse IP à scanner : ")
 
-# Scan rapide (1000 ports principaux)
+
 result = subprocess.run(["nmap", ip], capture_output=True, text=True)
 
 def extraire_ports_ouverts(nmap_output):
@@ -36,13 +36,58 @@ risques_services = {
     "domain":   ("faible",   "DNS (53) : Service de résolution de noms."),
     "ldap":     ("moyen",    "LDAP (389) : Annuaire réseau, attention à la configuration."),
     "snmp":     ("moyen",    "SNMP (161) : Supervision réseau, attention aux versions non sécurisées."),
-    # vous pouvez en ajouter d'autres selon vos besoins
+    
 }
 
-list_ports_ouverts = extraire_ports_ouverts(result.stdout)
+list_ports = extraire_ports_ouverts(result.stdout)
 print("Ports ouverts et services associés :")
-for port, service in list_ports_ouverts:
+
+score = 100
+conseils = []
+
+for port, service in list_ports:
     risque, explication = risques_services.get(service, ("inconnu", "Risque non défini."))
     print(f"{port} : {service} | Risque : {risque} | {explication}")
+    score -= 10
+    if risque == "critique":
+        conseils.append(f" Fermez le port {port} ({service}) si possible : {explication}")
+    elif risque == "moyen":
+        conseils.append(f" Vérifiez si le port {port} ({service}) est nécessaire : {explication}")
+    elif risque == "faible":
+        conseils.append(f" Le port {port} ({service}) est généralement sûr, mais vérifiez s'il est utile.")
+    else:
+        conseils.append(f" Port {port} ({service}) : risque inconnu, renseignez-vous sur ce service.")
 
-input("Appuie sur Entrée pour quitter...")
+if score < 0:
+    score = 0
+
+print(f"\nScore de sécurité : {score}/100\n")
+
+
+if score >= 90:
+    print(" Excellent : Votre réseau est très bien sécurisé !")
+elif score >= 80:
+    print(" Bien : Votre sécurité est bonne, mais vous pouvez encore améliorer certains points.")
+elif score >= 70:
+    print(" Correct : Attention à certains ports ouverts, vérifiez leur utilité.")
+elif score >= 60:
+    print(" Moyen : Plusieurs ports ouverts présentent des risques, pensez à les fermer si possible.")
+elif score >= 50:
+    print(" Faible : Votre réseau est exposé, il est conseillé de sécuriser davantage.")
+elif score >= 40:
+    print(" Alerte : Beaucoup de ports à risque ouverts, votre sécurité est insuffisante !")
+elif score >= 30:
+    print(" Danger : Votre réseau est très vulnérable, agissez rapidement !")
+elif score >= 20:
+    print(" Critique : La plupart des ports ouverts sont dangereux, fermez-les au plus vite !")
+elif score >= 10:
+    print(" Extrême : Votre réseau est quasiment ouvert à tous, il y a un risque majeur !")
+else:
+    print(" Catastrophique : Aucune sécurité, tous vos ports sont ouverts ! Fermez tout immédiatement !")
+
+if conseils:
+    print("\nConseils personnalisés :")
+    for c in conseils:
+        print("-", c)
+else:
+    print("Bravo, aucun port à risque détecté !")
