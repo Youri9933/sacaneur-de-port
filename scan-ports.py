@@ -1,7 +1,9 @@
-
+import platform
 import subprocess
 
 ip = input("Adresse IP à scanner : ")
+os_name = platform.system()
+print("Système détecté :", os_name)
 
 
 result = subprocess.run(["nmap", ip], capture_output=True, text=True)
@@ -91,3 +93,60 @@ if conseils:
         print("-", c)
 else:
     print("Bravo, aucun port à risque détecté !")
+
+# ==== commandes pour fermer et ouvrir les ports ====
+
+def fermer_port(port, protocole):
+    if os_name == "Windows":
+        cmd = [
+            "netsh", "advfirewall", "firewall", "add", "rule",
+            f"name=Bloquer port {port}", "dir=in", "action=block",
+            f"protocol={protocole}", f"localport={port}"
+        ]
+    elif os_name == "Linux":
+        cmd = ["sudo", "ufw", "deny", f"{port}/{protocole.lower()}"]
+    elif os_name == "Darwin":
+        print("Sur macOS, la gestion des ports se fait avec pfctl. (Non implémenté ici)")
+        return
+    else:
+        print("OS non supporté.")
+        return
+    subprocess.run(cmd)
+
+def ouvrir_port(port, protocole):
+    if os_name == "Windows":
+        cmd = [
+            "netsh", "advfirewall", "firewall", "add", "rule",
+            f"name=Ouvrir port {port}", "dir=in", "action=allow",
+            f"protocol={protocole}", f"localport={port}"
+        ]
+    elif os_name == "Linux":
+        cmd = ["sudo", "ufw", "allow", f"{port}/{protocole.lower()}"]
+    elif os_name == "Darwin":
+        print("Sur Mac, la gestion des ports se fait avec pfctl. (Non implémenté ici)")
+        return
+    else:
+        print("OS non supporté.")
+        return
+    subprocess.run(cmd)
+
+# === Menu gestion ports ===
+while True:
+    print("\nQue veux-tu faire ?")
+    print("1. Fermer un port")
+    print("2. Ouvrir un port")
+    print("3. Quitter")
+    choix = input("Ton choix : ")
+    if choix == "1":
+        port = input("Numéro du port à fermer : ")
+        protocole = input("Protocole (tcp/udp) : ").upper()
+        fermer_port(port, protocole)
+    elif choix == "2":
+        port = input("Numéro du port à ouvrir : ")
+        protocole = input("Protocole (tcp/udp) : ").upper()
+        ouvrir_port(port, protocole)
+    elif choix == "3":
+        print("Au revoir !")
+        break
+    else:
+        print("Choix invalide.")
