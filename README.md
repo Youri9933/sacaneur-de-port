@@ -11,10 +11,19 @@
 - **Linux** : `sudo apt install nmap` (Debian/Ubuntu) ou `sudo dnf install nmap` (Fedora)
 - **Mac** : `brew install nmap`
 
+
 ## Utilisation
+
+**Important :** Pour un fonctionnement optimal (surtout la gestion automatique des ports), lancez le script en mode administrateur (clic droit > "Exécuter en tant qu'administrateur" sous Windows, ou avec `sudo` sous Linux).
 
 ```bash
 python scan-ports.py
+## Nouveautés
+
+- **Score de sécurité** : À la fin du scan, un score sur 100 évalue la sécurité de votre réseau selon les ports ouverts.
+- **Conseils personnalisés** : Des recommandations sont affichées selon les risques détectés.
+- **Gestion des ports** : Un menu interactif permet de fermer ou ouvrir des ports automatiquement (nécessite les droits administrateur/sudo).
+
 
 ## Services analysés
 
