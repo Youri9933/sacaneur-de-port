@@ -1,13 +1,27 @@
 import platform
 import subprocess
 
-ip = input("Adresse IP à scanner : ")
-os_name = platform.system()
-print("Système détecté :", os_name)
+# Table des ports/services standards
+services_standard = {
+    ("21", "ftp"),
+    ("22", "ssh"),
+    ("23", "telnet"),
+    ("25", "smtp"),
+    ("53", "domain"),
+    ("80", "http"),
+    ("110", "pop3"),
+    ("143", "imap"),
+    ("443", "https"),
+    ("445", "smb"),
+    ("3389", "rdp"),
+    ("3306", "mysql"),
+    ("5432", "postgresql"),
+    ("5900", "vnc"),
+    ("389", "ldap"),
+    ("161", "snmp"),
+}
 
-
-result = subprocess.run(["nmap", ip], capture_output=True, text=True)
-
+# Fonction pour extraire les ports ouverts
 def extraire_ports_ouverts(nmap_output):
     ports = []
     lines = nmap_output.splitlines()
@@ -19,6 +33,15 @@ def extraire_ports_ouverts(nmap_output):
                 service = parts[2]
                 ports.append((port, service))
     return ports
+
+# Fonction pour détecter les services sur ports non standards
+def detecter_services_non_standards(list_ports):
+    non_standards = []
+    for port, service in list_ports:
+        port_num = port.split("/")[0]
+        if (port_num, service) not in services_standard:
+            non_standards.append((port, service))
+    return non_standards
 
 risques_services = {
     "ftp":      ("critique", "FTP (21) : Protocole non chiffré, vulnérable aux interceptions."),
@@ -38,13 +61,28 @@ risques_services = {
     "domain":   ("faible",   "DNS (53) : Service de résolution de noms."),
     "ldap":     ("moyen",    "LDAP (389) : Annuaire réseau, attention à la configuration."),
     "snmp":     ("moyen",    "SNMP (161) : Supervision réseau, attention aux versions non sécurisées."),
-    
 }
 
+# Demander l'IP et scanner
+ip = input("Adresse IP à scanner : ")
+os_name = platform.system()
+print("Système détecté :", os_name)
+
+result = subprocess.run(["nmap", ip], capture_output=True, text=True)
+
+# Extraire et afficher les ports ouverts
 list_ports = extraire_ports_ouverts(result.stdout)
 print("Ports ouverts et services associés :")
 
-score = 100
+# Détecter et afficher les services sur ports non standards
+non_standards = detecter_services_non_standards(list_ports)
+if non_standards:
+    print("\n[!] Services détectés sur des ports non standards :")
+    for port, service in non_standards:
+        print(f"  - {service} sur {port}")
+    print("  ⚠️  Vérifiez si ces services sont légitimes sur ces ports !")
+
+# Calculer le score de sécurité
 conseils = []
 
 for port, service in list_ports:

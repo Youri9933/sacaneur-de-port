@@ -23,6 +23,7 @@ python scan-ports.py
 - **Score de sécurité** : À la fin du scan, un score sur 100 évalue la sécurité de votre réseau selon les ports ouverts.
 - **Conseils personnalisés** : Des recommandations sont affichées selon les risques détectés.
 - **Gestion des ports** : Un menu interactif permet de fermer ou ouvrir des ports automatiquement (nécessite les droits administrateur/sudo).
+- **Détection des services sur ports non-standards** : Le scanner identifie les services s'exécutant sur des ports inhabituels (ex : HTTP sur 8080 au lieu de 80) pour repérer les configurations suspectes.
 
 
 ## Services analysés
