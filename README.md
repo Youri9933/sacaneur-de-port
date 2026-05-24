@@ -24,6 +24,76 @@ python scan-ports.py
 - **Conseils personnalisés** : Des recommandations sont affichées selon les risques détectés.
 - **Gestion des ports** : Un menu interactif permet de fermer ou ouvrir des ports automatiquement (nécessite les droits administrateur/sudo).
 - **Détection des services sur ports non-standards** : Le scanner identifie les services s'exécutant sur des ports inhabituels (ex : HTTP sur 8080 au lieu de 80) pour repérer les configurations suspectes.
+- **Export dual format** : Exportez le rapport en fichier texte (`.txt`) ou Markdown (`.md`) selon vos besoins.
+
+## Export du rapport
+
+Après chaque scan, vous pouvez exporter le rapport dans deux formats :
+
+### Format Texte (.txt)
+Rapport simple et lisible, parfait pour :
+-  Archivage
+-  Envoi par email
+-  Impression
+
+**Contenu:**
+```
+============================================================
+RAPPORT DE SCAN DE SÉCURITÉ RÉSEAU
+============================================================
+
+Date du scan : 2026-05-24 14:32:45
+Adresse IP scannée : 8.8.8.8
+
+PORTS OUVERTS DÉTECTÉS
+  53/tcp : domain
+  443/tcp : https
+
+SCORE DE SÉCURITÉ : 80/100
+```
+
+### Format Markdown (.md)
+Rapport formaté avec tableaux  idéal pour :
+-  GitHub/GitLab
+-  Documentation web
+-  Édition dans VS Code
+- Rendu HTML élégant
+
+**Contenu:**
+```markdown
+# Rapport de Scan de Sécurité Réseau
+
+**Date du scan:** 2026-05-24 14:32:45
+**Adresse IP scannée:** `8.8.8.8`
+
+##  Ports Ouverts Détectés
+
+| Port | Service | Risque |
+|------|---------|--------|
+| 53/tcp | domain | faible |
+| 443/tcp | https | faible |
+
+##  Score de Sécurité
+
+### **80/100**
+
+ **Bien** : Votre sécurité est bonne, mais vous pouvez encore améliorer certains points.
+```
+
+### Comment exporter ?
+
+À la fin du scan, le programme demande :
+```
+Voulez-vous exporter le rapport ? (oui/non) : oui
+Format d'export :
+1. Fichier texte (.txt)
+2. Fichier Markdown (.md)
+Votre choix (1 ou 2) : 
+```
+
+Les rapports sont sauvegardés dans le **même dossier** que le script avec des noms uniques :
+- `rapport_scan_8.8.8.8_20260524_143245.txt`
+- `rapport_scan_8.8.8.8_20260524_143250.md`
 
 
 ## Services analysés
