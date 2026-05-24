@@ -1,5 +1,6 @@
 import platform
 import subprocess
+import datetime
 
 # Table des ports/services standards
 services_standard = {
@@ -83,6 +84,7 @@ if non_standards:
     print("  ⚠️  Vérifiez si ces services sont légitimes sur ces ports !")
 
 # Calculer le score de sécurité
+score = 100
 conseils = []
 
 for port, service in list_ports:
@@ -188,3 +190,55 @@ while True:
         break
     else:
         print("Choix invalide.")
+
+# Fonction pour exporter le rapport
+def exporter_rapport(ip, list_ports, non_standards, score, conseils):
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    nom_fichier = f"rapport_scan_{ip}_{timestamp}.txt"
+    
+    with open(nom_fichier, "W", encoding="utf-8") as f:
+        f.write("=" * 60 + "\n")
+        f.write(f"Rapport de scan de sécurité réseau\n")
+        f.write("=" * 60 + "\n\n")
+
+        f.write(f"Date du scan : {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write(f"Adresse IP scannée : {ip}\n\n")
+
+        f.write("-" * 60 + "\n")
+        f.write("Ports ouverts détectés :\n")
+        f.write("-" * 60 + "\n")
+        if list_ports:
+            for port, service in list_ports:
+                f.write(f" {port} : {service}\n")
+        else:
+            f.write(" Aucun port ouvert détecté.\n")
+        
+        f.write("\n" + "-" * 60 + "\n")
+        f.write("Services sur ports non standards :\n")
+        f.write("-" * 60 + "\n")
+        if non_standards:
+            for port, service in non_standards:
+                f.write(f" {service} sur {port} (inhabituel)\n")
+        else:
+            f.write(" Aucun service sur port non-standard.\n")
+        
+        f.write("\n" + "-" * 60 + "\n")
+        f.write(f"Score de sécurité : {score}/100\n")
+        f.write("-" * 60 + "\n")
+
+        f.write("\n" + "-" * 60 + "\n")
+        f.write("Recommandations \n")
+        f.write("-" * 60 + "\n")
+        if conseils:
+            for c in conseils:
+                f.write(f"  • {c}\n")
+        else:
+            f.write("Aucune recommandation, votre réseau semble sécurisé !\n")
+
+        f.write("\n" + "=" * 60 + "\n")
+
+    print(f"\n Rapport sauvegardé : {nom_fichier}")
+
+    choix_export = input("\nVoulez-vous exporter le rapport en fichier texte ? (oui/non) : ").lower()
+if choix_export == "oui" or choix_export == "o":
+    exporter_rapport(ip, list_ports, non_standards, score, conseils)
