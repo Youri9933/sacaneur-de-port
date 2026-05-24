@@ -42,7 +42,7 @@ Ports ouverts et services associés :
 ```
 [!] Services détectés sur des ports non standards :
   - http sur 8080/tcp
-  ⚠️  Vérifiez si ces services sont légitimes sur ces ports !
+    Vérifiez si ces services sont légitimes sur ces ports !
 ```
 
 ### 4. Calcule un score de sécurité
@@ -69,26 +69,26 @@ Que veux-tu faire ?
 
 | Risque | Signification |
 |--------|---------------|
-| **Critique** | 🔴 Fermez ce port si possible |
-| **Moyen** | 🟡 Vérifiez si c'est nécessaire |
-| **Faible** | 🟢 Généralement sûr |
+| **Critique** |  Fermez ce port si possible |
+| **Moyen** |  Vérifiez si c'est nécessaire |
+| **Faible** |  Généralement sûr |
 
 ## Ports analysés
 
 - **21** - FTP (transfert fichiers)
 - **22** - SSH (accès sécurisé)
-- **23** - Telnet (accès non chiffré) ⚠️
+- **23** - Telnet (accès non chiffré) 
 - **25** - SMTP (e-mail)
 - **53** - DNS (résolution noms)
 - **80** - HTTP (web)
-- **110** - POP3 (e-mail) ⚠️
-- **143** - IMAP (e-mail) ⚠️
+- **110** - POP3 (e-mail) 
+- **143** - IMAP (e-mail) 
 - **443** - HTTPS (web sécurisé)
-- **445** - SMB (partage fichiers Windows) ⚠️
-- **3389** - RDP (bureau à distance) ⚠️
+- **445** - SMB (partage fichiers Windows) 
+- **3389** - RDP (bureau à distance) 
 - **3306** - MySQL (base données)
 - **5432** - PostgreSQL (base données)
-- **5900** - VNC (bureau à distance) ⚠️
+- **5900** - VNC (bureau à distance) 
 
 ## Export du rapport
 
@@ -105,7 +105,111 @@ Le fichier contient :
 - Score de sécurité
 - Recommandations personnalisées
 
-## Exemples d'utilisation
+### Formats d'export disponibles
+
+Après le scan, tu as le choix entre deux formats :
+
+#### 1️ Fichier Texte (.txt)
+```
+Voulez-vous exporter le rapport ? (oui/non) : oui
+Format d'export :
+1. Fichier texte (.txt)
+2. Fichier Markdown (.md)
+Votre choix (1 ou 2) : 1
+```
+
+**Résultat:** Fichier `rapport_scan_8.8.8.8_YYYYMMDD_HHMMSS.txt`
+
+Contenu texte lisible :
+```
+============================================================
+RAPPORT DE SCAN DE SÉCURITÉ RÉSEAU
+============================================================
+
+Date du scan : 2026-05-24 14:32:45
+Adresse IP scannée : 8.8.8.8
+
+------------------------------------------------------------
+PORTS OUVERTS DÉTECTÉS
+------------------------------------------------------------
+  53/tcp : domain
+  443/tcp : https
+
+------------------------------------------------------------
+SERVICES SUR PORTS NON-STANDARDS
+------------------------------------------------------------
+  Aucun service sur port non-standard.
+
+------------------------------------------------------------
+SCORE DE SÉCURITÉ : 80/100
+------------------------------------------------------------
+
+------------------------------------------------------------
+RECOMMANDATIONS
+------------------------------------------------------------
+  • Le port 53 (domain) est généralement sûr, mais vérifiez s'il est utile.
+```
+
+#### 2️ Fichier Markdown (.md)
+```
+Voulez-vous exporter le rapport ? (oui/non) : oui
+Format d'export :
+1. Fichier texte (.txt)
+2. Fichier Markdown (.md)
+Votre choix (1 ou 2) : 2
+```
+
+**Résultat:** Fichier `rapport_scan_8.8.8.8_YYYYMMDD_HHMMSS.md`
+
+Contenu formaté pour GitHub/Markdown :
+```markdown
+# Rapport de Scan de Sécurité Réseau
+
+**Date du scan:** 2026-05-24 14:32:45
+**Adresse IP scannée:** `8.8.8.8`
+
+##  Ports Ouverts Détectés
+
+| Port | Service | Risque |
+|------|---------|--------|
+| 53/tcp | domain | faible |
+| 443/tcp | https | faible |
+
+##  Services sur Ports Non-Standards
+
+ Aucun service sur port non-standard.
+
+##  Score de Sécurité
+
+### **80/100**
+
+ **Bien** : Votre sécurité est bonne, mais vous pouvez encore améliorer certains points.
+
+##  Recommandations
+
+- Le port 53 (domain) est généralement sûr, mais vérifiez s'il est utile.
+```
+
+### Où trouver les rapports ?
+
+Les rapports sont créés dans le **même dossier** que `scan-ports.py` avec des noms uniques :
+- `rapport_scan_8.8.8.8_20260524_143245.txt`
+- `rapport_scan_8.8.8.8_20260524_143250.md`
+
+### Cas d'usage
+
+**Format TXT :**
+-  Archivage simple
+-  Envoi par email
+-  Impression basique
+
+**Format MD :**
+-  Upload sur GitHub
+-  Affichage élégant en HTML
+-  Documentation professionnelle
+-  Édition facile dans VS Code
+
+
 
 ### Scanner Google DNS
 ```
@@ -124,13 +228,13 @@ Adresse IP à scanner : 10.0.0.5
 
 ## Points importants
 
-⚠️ **Lancer en admin/sudo** : Pour la gestion automatique des ports, lance en mode administrateur :
+ **Lancer en admin/sudo** : Pour la gestion automatique des ports, lance en mode administrateur :
 - Windows : Clic droit > "Exécuter en tant qu'administrateur"
 - Linux : `sudo python scan-ports.py`
 
-⚠️ **Respect de la légalité** : Ne scanne que des serveurs que tu as la permission de tester !
+ **Respect de la légalité** : Ne scanne que des serveurs que tu as la permission de tester !
 
-🛡️ **Ne ferme pas les ports critiques** : Fermer SSH (22) sans accès peut te bloquer.
+ **Ne ferme pas les ports critiques** : Fermer SSH (22) sans accès peut te bloquer.
 
 ## Questions fréquentes
 
@@ -150,12 +254,12 @@ A: Demande-toi : "J'ai besoin d'accéder à ce service depuis Internet ?"
 
 ## Améliorations futures
 
-- 📊 Export en HTML (rapport visuel)
-- 📈 Historique des scans
-- 🔔 Alertes email en cas de risque critique
-- 🖥️ Interface graphique (GUI)
-- 🗄️ Base de données CVE (failles connues)
+-  Export en HTML (rapport visuel)
+-  Historique des scans
+-  Alertes email en cas de risque critique
+-  Interface graphique (GUI)
+-  Base de données CVE (failles connues)
 
 ---
 
-**Besoin d'aide ?** Pose tes questions sur le code, les résultats, ou la sécurité ! 😊
+**Besoin d'aide ?** Pose tes questions sur le code, les résultats, ou la sécurité ! 
