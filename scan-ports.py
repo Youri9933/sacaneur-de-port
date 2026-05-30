@@ -195,24 +195,44 @@ def ouvrir_port(port, protocole):
 
 # === PROGRAMME PRINCIPAL ===
 
+# Afficher l'en-tête ASCII art
+def afficher_banner():
+    banner = """
+    ╔════════════════════════════════════════════════════════════╗
+    ║                  SCANNER DE PORTS                          ║
+    ║            Outil de Sécurité Réseau Professionnel          ║
+    ╚════════════════════════════════════════════════════════════╝
+    """
+    print(banner)
+
+afficher_banner()
+
 # Demander l'IP et scanner
-ip = input("Adresse IP à scanner : ")
+ip = input("\nAdresse IP a scanner : ")
 os_name = platform.system()
-print("Système détecté :", os_name)
+print(f"Systeme detecte : {os_name}")
+print("Scan en cours...\n")
 
 result = subprocess.run(["nmap", ip], capture_output=True, text=True)
 
 # Extraire et afficher les ports ouverts
 list_ports = extraire_ports_ouverts(result.stdout)
-print("Ports ouverts et services associés :")
+print(f"\n========== PORTS OUVERTS DETECTES ==========")
+if list_ports:
+    for port, service in list_ports:
+        print(f"[OUVERT] {port:15} {service:25}")
+else:
+    print(f"[OK] Aucun port ouvert detecte !")
+print(f"==========================================")
 
-# Détecter et afficher les services sur ports non-standards
+# Detecter et afficher les services sur ports non-standards
 non_standards = detecter_services_non_standards(list_ports)
 if non_standards:
-    print("\n[!] Services détectés sur des ports non standards :")
+    print("\n[!] SERVICES SUR PORTS NON-STANDARDS :")
     for port, service in non_standards:
-        print(f"  - {service} sur {port}")
-    print("    Vérifiez si ces services sont légitimes sur ces ports !")
+        print(f"    [ALERTE] {service} detecte sur {port} (inhabituel !)")
+    print("    Verifiez si ces services sont legitimes !\n")
+
 
 # Calculer le score de sécurité
 score = 100
@@ -220,89 +240,103 @@ conseils = []
 
 for port, service in list_ports:
     risque, explication = risques_services.get(service, ("inconnu", "Risque non défini."))
-    print(f"{port} : {service} | Risque : {risque} | {explication}")
     score -= 10
     if risque == "critique":
-        conseils.append(f" Fermez le port {port} ({service}) si possible : {explication}")
+        conseils.append(f"Fermez le port {port} ({service}) si possible : {explication}")
     elif risque == "moyen":
-        conseils.append(f" Vérifiez si le port {port} ({service}) est nécessaire : {explication}")
+        conseils.append(f"Vérifiez si le port {port} ({service}) est nécessaire : {explication}")
     elif risque == "faible":
-        conseils.append(f" Le port {port} ({service}) est généralement sûr, mais vérifiez s'il est utile.")
+        conseils.append(f"Le port {port} ({service}) est généralement sûr, mais vérifiez s'il est utile.")
     else:
-        conseils.append(f" Port {port} ({service}) : risque inconnu, renseignez-vous sur ce service.")
+        conseils.append(f"Port {port} ({service}) : risque inconnu, renseignez-vous sur ce service.")
 
 if score < 0:
     score = 0
 
-print(f"\nScore de sécurité : {score}/100\n")
+print(f"\n========== SCORE DE SECURITE ==========")
+status = "[CRITIQUE]" if score < 30 else "[ALERTE]" if score < 60 else "[BON]" if score < 80 else "[EXCELLENT]"
+print(f"{status} {score}/100")
+print(f"==========================================")
 
 if score >= 90:
-    print(" Excellent : Votre réseau est très bien sécurisé !")
+    print("\n[EXCELLENT] Votre reseau est tres bien securise !")
 elif score >= 80:
-    print(" Bien : Votre sécurité est bonne, mais vous pouvez encore améliorer certains points.")
+    print("\n[BON] Votre securite est bonne, mais vous pouvez ameliorer.")
 elif score >= 70:
-    print(" Correct : Attention à certains ports ouverts, vérifiez leur utilité.")
+    print("\n[CORRECT] Attention a certains ports, verifiez leur utilite.")
 elif score >= 60:
-    print(" Moyen : Plusieurs ports ouverts présentent des risques, pensez à les fermer si possible.")
+    print("\n[MOYEN] Plusieurs ports a risque, pensez a les fermer.")
 elif score >= 50:
-    print(" Faible : Votre réseau est exposé, il est conseillé de sécuriser davantage.")
+    print("\n[FAIBLE] Votre reseau est expose, securisez davantage.")
 elif score >= 40:
-    print(" Alerte : Beaucoup de ports à risque ouverts, votre sécurité est insuffisante !")
+    print("\n[ALERTE] Beaucoup de ports a risque, securite insuffisante !")
 elif score >= 30:
-    print(" Danger : Votre réseau est très vulnérable, agissez rapidement !")
+    print("\n[DANGER] Votre reseau est tres vulnerable, agissez !")
 elif score >= 20:
-    print(" Critique : La plupart des ports ouverts sont dangereux, fermez-les au plus vite !")
+    print("\n[CRITIQUE] Presque tous les ports dangereux, fermez-les !")
 elif score >= 10:
-    print(" Extrême : Votre réseau est quasiment ouvert à tous, il y a un risque majeur !")
+    print("\n[EXTREME] Quasiment ouvert, risque majeur !")
 else:
-    print(" Catastrophique : Aucune sécurité, tous vos ports sont ouverts ! Fermez tout immédiatement !")
+    print("\n[CATASTROPHIQUE] AUCUNE SECURITE, FERMEZ TOUT !")
 
 if conseils:
-    print("\nConseils personnalisés :")
-    for c in conseils:
-        print("-", c)
+    print("\n===== RECOMMANDATIONS PERSONNALISEES =====")
+    for i, c in enumerate(conseils, 1):
+        print(f"{i}. {c}")
+    print("==========================================")
 else:
-    print("Bravo, aucun port à risque détecté !")
+    print("\n[OK] Bravo, aucun port a risque detecte !")
 
 # === Menu d'export du rapport ===
 print("\n" + "=" * 60)
-choix_rapport = input("\nVoulez-vous exporter le rapport ? (oui/non) : ").lower()
+choix_rapport = input("Voulez-vous exporter le rapport ? (oui/non) : ").lower()
 if choix_rapport == "oui" or choix_rapport == "o":
-    print("\nFormat d'export :")
-    print("1. Fichier texte (.txt)")
-    print("2. Fichier Markdown (.md)")
-    format_choix = input("Votre choix (1 ou 2) : ")
+    print("\n===== FORMAT D'EXPORT =====")
+    print("[ 1 > Fichier texte (.txt) ]")
+    print("[ 2 > Fichier Markdown (.md) ]")
+    print("[ 0 > Annuler ]")
+    print("==========================")
+    format_choix = input("\nVotre choix (0/1/2) : ")
     if format_choix == "1":
         exporter_rapport(ip, list_ports, non_standards, score, conseils)
     elif format_choix == "2":
         exporter_rapport_md(ip, list_ports, non_standards, score, conseils)
+    elif format_choix == "0":
+        print("[OK] Export annule.")
     else:
-        print("Choix invalide.")
+        print("[ERREUR] Choix invalide.")
 else:
-    print("\nRapport non exporté.")
+    print("\n[OK] Rapport non exporte.")
 
 # === Menu gestion ports ===
 print("\n" + "=" * 60)
-gerer_ports = input("\nVoulez-vous gérer les ports ? (oui/non) : ").lower()
+gerer_ports = input("\nVoulez-vous gerer les ports ? (oui/non) : ").lower()
 if gerer_ports == "oui" or gerer_ports == "o":
     while True:
-        print("\nQue veux-tu faire ?")
-        print("1. Fermer un port")
-        print("2. Ouvrir un port")
-        print("3. Quitter")
-        choix = input("Ton choix : ")
+        print("\n===== GESTION DES PORTS =====")
+        print("[ 1 > Fermer un port ]")
+        print("[ 2 > Ouvrir un port ]")
+        print("[ 0 > Quitter ]")
+        print("============================")
+        choix = input("\nTon choix (0/1/2) : ")
         if choix == "1":
-            port = input("Numéro du port à fermer : ")
+            port = input("\nNumero du port a fermer : ")
             protocole = input("Protocole (tcp/udp) : ").upper()
+            print("[EN COURS] Fermeture en cours...")
             fermer_port(port, protocole)
         elif choix == "2":
-            port = input("Numéro du port à ouvrir : ")
+            port = input("\nNumero du port a ouvrir : ")
             protocole = input("Protocole (tcp/udp) : ").upper()
+            print("[EN COURS] Ouverture en cours...")
             ouvrir_port(port, protocole)
-        elif choix == "3":
-            print("Au revoir !")
+        elif choix == "0":
+            print("\n[OK] Gestion des ports terminee.")
             break
         else:
-            print("Choix invalide.")
+            print("\n[ERREUR] Choix invalide. Reessaye.")
 else:
-    print("\nAu revoir !")
+    print("\n[OK] Gestion des ports non utilisee.")
+
+print("\n" + "=" * 60)
+print("[OK] Scanner termine. Au revoir !")
+
